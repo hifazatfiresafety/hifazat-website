@@ -608,7 +608,10 @@ const filePath = path.join(PUBLIC_DIR, file);
     ".jpg": "image/jpeg",
     ".jpeg": "image/jpeg",
     ".svg": "image/svg+xml",
-    ".ico": "image/x-icon"
+    ".ico": "image/x-icon",
+    ".webp": "image/webp",
+    ".xml": "application/xml; charset=utf-8",
+    ".txt": "text/plain; charset=utf-8"
   };
 
   res.writeHead(200, {
