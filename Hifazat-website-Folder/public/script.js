@@ -158,6 +158,22 @@
     });
   }
 
+  /* Nav dropdowns: tap to toggle (mobile), hover handled by CSS (desktop) */
+  function initNavDropdowns() {
+    document.querySelectorAll('.nav-drop-toggle').forEach((toggle) => {
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const drop = toggle.closest('.nav-drop');
+        const wasOpen = drop.classList.contains('open');
+        document.querySelectorAll('.nav-drop.open').forEach((d) => d.classList.remove('open'));
+        if (!wasOpen) drop.classList.add('open');
+      });
+    });
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.nav-drop.open').forEach((d) => d.classList.remove('open'));
+    });
+  }
+
   /* Smooth scroll-reveal for sections */
   function initScrollReveal() {
     if (!('IntersectionObserver' in window)) return;
@@ -214,6 +230,7 @@
   });
   initWhatsappLinks();
   initMenu();
+  initNavDropdowns();
   initScrollReveal();
   initHeaderScroll();
 })();
