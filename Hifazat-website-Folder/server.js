@@ -13,6 +13,15 @@ const PORT = 3000;
 
 const APPS_SCRIPT_URL = process.env.APPS_SCRIPT_URL || "";
 const BUSINESS_PHONE = process.env.BUSINESS_PHONE || "03091666636";
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "";
+
+// Checks the x-admin-token header against ADMIN_TOKEN set in Render env vars.
+// If ADMIN_TOKEN is not set, admin routes are disabled entirely (fail closed).
+function isAuthorizedAdmin(req) {
+  if (!ADMIN_TOKEN) return false;
+  const provided = req.headers["x-admin-token"];
+  return typeof provided === "string" && provided === ADMIN_TOKEN;
+}
 
 // Immediate retry during a single sync attempt
 const GOOGLE_SYNC_MAX_ATTEMPTS = 3;
@@ -437,6 +446,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && req.url === "/api/admin-dashboard") {
+    if (!isAuthorizedAdmin(req)) return sendJSON(res, { ok: false, error: "Unauthorized" }, 401);
     return sendJSON(res, {
       ok: true,
       dashboard: buildDashboardStats(),
@@ -448,10 +458,12 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && req.url === "/api/inquiries") {
+    if (!isAuthorizedAdmin(req)) return sendJSON(res, { ok: false, error: "Unauthorized" }, 401);
     return sendJSON(res, readInquiries());
   }
 
   if (req.method === "GET" && req.url === "/api/failed-inquiries") {
+    if (!isAuthorizedAdmin(req)) return sendJSON(res, { ok: false, error: "Unauthorized" }, 401);
     const failed = readInquiries().filter((item) => isFailedSync(item.googleSheetsSync));
     return sendJSON(res, {
       ok: true,
@@ -461,6 +473,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === "POST" && req.url === "/api/resend-failed-leads") {
+    if (!isAuthorizedAdmin(req)) return sendJSON(res, { ok: false, error: "Unauthorized" }, 401);
     try {
       const failed = readInquiries().filter((item) => isFailedSync(item.googleSheetsSync));
 
